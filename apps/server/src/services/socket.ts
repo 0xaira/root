@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 require('dotenv').config();
 
 import Redis from "ioredis";
+import prismaClient from "./prisma";
 
 const pub = new Redis({
   host: process.env.REDIS_HOST,
@@ -50,6 +51,11 @@ class SocketService {
       if (channel === "MESSAGES") {
         console.log("new message from redis", message);
         io.emit("message", message);
+        await prismaClient.message.create({
+          data: {
+            text: message,
+          },
+        });
       }
     });
   }
